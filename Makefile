@@ -31,3 +31,6 @@ all:
 
 load:
 	psql python-project-83 < database.sql
+
+start-debag:
+	poetry run flask --app page_analyzer:app --debug run --port 8000
