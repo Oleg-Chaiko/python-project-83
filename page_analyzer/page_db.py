@@ -64,5 +64,32 @@ def get_all_urls(conn, cursor):
     result = cursor.fetchall()
     return result
 
+@conection_url
+def url_check(url_id, conn, cursor):
+    creat_at = date.today()
+    query = sql.SQL(
+        "INSERT INTO {table} (url_id, created_at) VALUES (%s, %s)"'RETURNING id'
+    ).format(
+        table=sql.Identifier('url_checks'),
+    )
+    cursor.execute(query, (url_id, creat_at))
+    conn.commit()
 
-print(get_data_by_url('github.com'))
+@conection_url
+def get_checks(url_id, conn, cursor):
+    query = sql.SQL(
+        "SELECT * FROM {check}"
+        "WHERE {value_3} = %s"
+        "ORDER BY {id} DESC;"
+    ).format(
+        id=sql.Identifier('id'),
+        value_3=sql.Identifier('url_id'),
+        check=sql.Identifier('url_checks')
+    )
+    cursor.execute(query, (url_id,))
+    array = cursor.fetchall()
+
+    return array
+
+
+print(get_checks(2))

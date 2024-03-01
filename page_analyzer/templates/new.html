@@ -25,6 +25,30 @@
 <form method="post" action="/urls/{{ id }}/checks">
     <input type="submit" value="Запустить проверку" class="btn btn-primary">
 </form>
-
+<table class="table table-bordered border-border-dark-subtle table-hover mt-3" data-test="checks">
+    <thead>
+    <tr>
+        <th scope="col">ID</th>
+        <th scope="col">Код ответа</th>
+        <th scope="col">h1</th>
+        <th scope="col">title</th>
+        <th scope="col">description</th>
+        <th scope="col">Дата создания</th>
+    </tr>
+    </thead>
+    
+    <tbody>
+    {% for check in checks %}
+    <tr>
+        <th>{{ check.id }}</th>
+        <td>{{ check.status_code }}</td>
+        <td>{{ check.h1 }}</td>
+        <td>{{ check.title }}</td>
+        <td>{{ check.description }}</td>
+        <td>{{ check.created_at }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
 
 {% endblock %}

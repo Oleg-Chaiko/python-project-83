@@ -44,7 +44,6 @@ def add_url():
             data=data.get('url'),
             messages=erorrs
         ), 422
-    url = normalize_url(data.get('url'))
     url_id = page_db.get_data_by_url(url)
     if url_id:
         flash('Страница уже существует', 'info')
@@ -58,10 +57,19 @@ def add_url():
 def get_url(id):
     data = page_db.get_data_by_id(id)
     messag = get_flashed_messages(with_categories=True)
+    checks = page_db.get_checks(id)
     return render_template(
         'new.html',
         id=id,
         name=data[1],
         created_at=data[2],
-        messages=messag
+        messages=messag,
+        checks=checks
     )
+
+
+@app.post('/urls/<id>/checks')
+def check_url(id):
+    chek = page_db.url_check(id)
+    flash('Страница успешно проверена', 'success')
+    return redirect(url_for('get_url', id=id))
