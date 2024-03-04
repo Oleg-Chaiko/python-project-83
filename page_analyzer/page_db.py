@@ -1,6 +1,7 @@
 from psycopg2 import connect, sql, extras
 from dotenv import load_dotenv
 from datetime import date
+from contextlib import suppress
 import os
 
 
@@ -56,13 +57,22 @@ def get_data_by_id(id, conn, cursor):
 
 @conection_url
 def get_all_urls(conn, cursor):
-    cursor.execute(
-        sql.SQL("SELECT * FROM {table}").format(
-            table=sql.Identifier('urls')
-        )
-    )
-    result = cursor.fetchall()
+    result = []
+    cursor.execute("SELECT id, name FROM urls ORDER BY id DESC;")
+    array = cursor.fetchall()
+    for val in array:
+        with suppress(FileNotFoundError):
+            item = {'id': val[0],
+                    'name': val[1],
+                    'last_check': "",
+                    'status_code': ""
+                    }
+            last_check = get_last_check(cursor, item.get('id'))
+            print(last_check)
+            item['last_check'] = last_check
+        result.append(item)
     return result
+
 
 @conection_url
 def url_check(url_id, conn, cursor):
@@ -78,18 +88,34 @@ def url_check(url_id, conn, cursor):
 @conection_url
 def get_checks(url_id, conn, cursor):
     query = sql.SQL(
-        "SELECT * FROM {check}"
+        "SELECT * FROM {table}"
         "WHERE {value_3} = %s"
         "ORDER BY {id} DESC;"
     ).format(
         id=sql.Identifier('id'),
         value_3=sql.Identifier('url_id'),
-        check=sql.Identifier('url_checks')
+        table=sql.Identifier('url_checks')
     )
     cursor.execute(query, (url_id,))
     array = cursor.fetchall()
-
     return array
 
 
-print(get_checks(2))
+def get_last_check(cursor, id_url):
+    query = sql.SQL(
+        "SELECT {creat_at} from {table}"
+        "WHERE {item} = %s "
+        "ORDER BY {id} DESC LIMIT 1"
+    ).format(
+        creat_at=sql.Identifier('created_at'),
+        table=sql.Identifier('url_checks'),
+        item=sql.Identifier('url_id'),
+        id=sql.Identifier('id'),
+    )
+    cursor.execute(query, (id_url,))
+    result = cursor.fetchone()
+    if result:
+        return result[0]
+    return ''
+
+
