@@ -44,7 +44,7 @@ def add_url():
             data=data.get('url'),
             messages=erorrs
         ), 422
-    url_id = page_db.get_data_by_url(url)
+    url_id = page_db.get_id_by_url(url)
     if url_id:
         flash('Страница уже существует', 'info')
         return redirect(url_for('get_url', id=url_id))

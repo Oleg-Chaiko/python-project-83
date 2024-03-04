@@ -2,6 +2,7 @@ from psycopg2 import connect, sql, extras
 from dotenv import load_dotenv
 from datetime import date
 from contextlib import suppress
+from page_analyzer.analizer import analiz_url
 import os
 
 
@@ -33,15 +34,15 @@ def add_url(url, conn, cursor):
 
 
 @conection_url
-def get_data_by_url(url, conn, cursor):
+def get_id_by_url(url, conn, cursor):
     query = sql.SQL("SELECT * FROM {table} WHERE {key} = %s").format(
         table=sql.Identifier('urls'),
         key=sql.Identifier('name')
     )
     cursor.execute(query, (url,))
-    result = cursor.fetchall()
+    result = cursor.fetchone()
     if result:
-        return result[0][0]
+        return result['id']
 
 
 @conection_url
@@ -51,8 +52,8 @@ def get_data_by_id(id, conn, cursor):
         key=sql.Identifier('id')
     )
     cursor.execute(query, (id,))
-    result = cursor.fetchall()
-    return result[0]
+    result = cursor.fetchone()
+    return result
 
 
 @conection_url
@@ -67,22 +68,34 @@ def get_all_urls(conn, cursor):
                     'last_check': "",
                     'status_code': ""
                     }
-            last_check = get_last_check(cursor, item.get('id'))
-            print(last_check)
-            item['last_check'] = last_check
+            check = get_last_check(cursor, item.get('id'))
+            item['last_check'] = check['created_at']
+            item['status_code'] = check['status_code']
+            print(check)
         result.append(item)
     return result
 
 
 @conection_url
 def url_check(url_id, conn, cursor):
+    url = get_data_by_id(url_id)['name']
+    check = analiz_url(url)
     creat_at = date.today()
     query = sql.SQL(
-        "INSERT INTO {table} (url_id, created_at) VALUES (%s, %s)"'RETURNING id'
+        "INSERT INTO {table} "
+        "(url_id, created_at, status_code)"
+        "VALUES (%s, %s, %s)"
+        "RETURNING id"
     ).format(
         table=sql.Identifier('url_checks'),
     )
-    cursor.execute(query, (url_id, creat_at))
+    cursor.execute(
+        query, (
+            url_id,
+            creat_at,
+            check.get('status_code')
+        )
+    )
     conn.commit()
 
 
@@ -104,11 +117,12 @@ def get_checks(url_id, conn, cursor):
 
 def get_last_check(cursor, id_url):
     query = sql.SQL(
-        "SELECT {creat_at} from {table}"
+        "SELECT {creat_at},{status_code} from {table}"
         "WHERE {item} = %s "
         "ORDER BY {id} DESC LIMIT 1"
     ).format(
         creat_at=sql.Identifier('created_at'),
+        status_code=sql.Identifier('status_code'),
         table=sql.Identifier('url_checks'),
         item=sql.Identifier('url_id'),
         id=sql.Identifier('id'),
@@ -116,5 +130,5 @@ def get_last_check(cursor, id_url):
     cursor.execute(query, (id_url,))
     result = cursor.fetchone()
     if result:
-        return result[0]
+        return result
     return ''
