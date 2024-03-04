@@ -85,6 +85,7 @@ def url_check(url_id, conn, cursor):
     cursor.execute(query, (url_id, creat_at))
     conn.commit()
 
+
 @conection_url
 def get_checks(url_id, conn, cursor):
     query = sql.SQL(
@@ -117,5 +118,3 @@ def get_last_check(cursor, id_url):
     if result:
         return result[0]
     return ''
-
-

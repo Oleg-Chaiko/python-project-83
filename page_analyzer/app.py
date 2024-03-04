@@ -70,6 +70,11 @@ def get_url(id):
 
 @app.post('/urls/<id>/checks')
 def check_url(id):
-    chek = page_db.url_check(id)
-    flash('Страница успешно проверена', 'success')
-    return redirect(url_for('get_url', id=id))
+    try:
+        page_db.url_check(id)
+        flash('Страница успешно проверена', 'success')
+        return redirect(url_for('get_url', id=id))
+    except Exception:
+        flash('Произошла ошибка при проверке', 'danger')
+        return redirect(url_for('get_url',
+                                id=id))
