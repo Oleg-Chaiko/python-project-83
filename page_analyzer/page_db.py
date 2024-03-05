@@ -83,8 +83,8 @@ def url_check(url_id, conn, cursor):
     creat_at = date.today()
     query = sql.SQL(
         "INSERT INTO {table} "
-        "(url_id, created_at, status_code)"
-        "VALUES (%s, %s, %s)"
+        "(url_id, created_at, status_code, h1, title, description)"
+        "VALUES (%s, %s, %s, %s, %s, %s)"
         "RETURNING id"
     ).format(
         table=sql.Identifier('url_checks'),
@@ -93,7 +93,10 @@ def url_check(url_id, conn, cursor):
         query, (
             url_id,
             creat_at,
-            check.get('status_code')
+            check.get('status_code'),
+            check.get('h1'),
+            check.get('title'),
+            check.get('description')
         )
     )
     conn.commit()
