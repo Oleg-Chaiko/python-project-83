@@ -2,7 +2,7 @@ install:
 	poetry install
 
 build:
-	sudo delete web service page_analyzer
+	./build.sh
 
 lint:
 	poetry run flake8 page_analyzer
