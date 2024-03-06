@@ -1,14 +1,8 @@
 install:
 	poetry install
 
-package-install:
-	python3 -m pip install --user dist/*.whl
-
 build:
-	./build.sh
-
-publish:
-	poetry publish --dry-run
+	sudo delete web service page_analyzer
 
 lint:
 	poetry run flake8 page_analyzer
