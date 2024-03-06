@@ -69,8 +69,8 @@ def get_all_urls(conn, cursor):
                     'status_code': ""
                     }
             check = get_last_check(cursor, item.get('id'))
-            item['last_check'] = check['created_at']
-            item['status_code'] = check['status_code']
+            item['last_check'] = check.get('created_at')
+            item['status_code'] = check.get('status_code')
             print(check)
         result.append(item)
     return result
@@ -132,6 +132,6 @@ def get_last_check(cursor, id_url):
     )
     cursor.execute(query, (id_url,))
     result = cursor.fetchone()
-    if result:
-        return result
-    return ''
+    if result is None:
+        raise FileNotFoundError
+    return result
