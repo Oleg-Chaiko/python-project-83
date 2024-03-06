@@ -2,7 +2,7 @@ from psycopg2 import connect, sql, extras
 from dotenv import load_dotenv
 from datetime import date
 from contextlib import suppress
-from page_analyzer.analizer import analiz_url
+from page_analyzer.analizer import get_analize
 import os
 
 
@@ -79,7 +79,7 @@ def get_all_urls(conn, cursor):
 @conection_url
 def url_check(url_id, conn, cursor):
     url = get_data_by_id(url_id)['name']
-    check = analiz_url(url)
+    check = get_analize(url)
     creat_at = date.today()
     query = sql.SQL(
         "INSERT INTO {table} "

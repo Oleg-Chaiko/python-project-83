@@ -4,12 +4,17 @@ import requests
 
 def analiz_url(url):
     resp = requests.get(url)
+    resp.raise_for_status()
+    status_code = resp.status_code
     bs = BeautifulSoup(resp.text, 'html.parser')
+    return get_analize(bs, status_code)
+
+def get_analize(text, status):
     check_dict = {}
-    check_dict['status_code'] = resp.status_code
-    check_dict['h1'] = find_h(bs)
-    check_dict['title'] = find_title(bs)
-    check_dict['description'] = find_meta(bs)
+    check_dict['status_code'] = status
+    check_dict['h1'] = find_h(text)
+    check_dict['title'] = find_title(text)
+    check_dict['description'] = find_meta(text)
     return check_dict
 
 
