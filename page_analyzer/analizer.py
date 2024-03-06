@@ -9,6 +9,7 @@ def analiz_url(url):
     bs = BeautifulSoup(resp.text, 'html.parser')
     return get_analize(bs, status_code)
 
+
 def get_analize(text, status):
     check_dict = {}
     check_dict['status_code'] = status
